@@ -156,6 +156,7 @@ namespace Mochizuki.VRChat.AssetMerger
                     if (!mergedController.HasParameter(parameter.name))
                         mergedController.AddParameter(parameter);
 
+                layers.First().defaultWeight = 1.0f;
                 layers.AddRange(controller.layers);
             }
 
@@ -170,10 +171,6 @@ namespace Mochizuki.VRChat.AssetMerger
                         layers[index] = layer;
                     }
                 }
-
-            foreach (var layer in layers)
-                if (layer.name.StartsWith("Base Layer"))
-                    layer.defaultWeight = 1.0f;
 
             mergedController.layers = layers.ToArray();
 
