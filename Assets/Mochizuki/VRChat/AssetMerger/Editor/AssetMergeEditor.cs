@@ -18,6 +18,8 @@ using UnityEngine;
 
 using VRC.SDK3.Avatars.ScriptableObjects;
 
+#pragma warning disable 649
+
 namespace Mochizuki.VRChat.AssetMerger
 {
     public class AssetMergeEditor : EditorWindow
@@ -168,6 +170,10 @@ namespace Mochizuki.VRChat.AssetMerger
                         layers[index] = layer;
                     }
                 }
+
+            foreach (var layer in layers)
+                if (layer.name.StartsWith("Base Layer"))
+                    layer.defaultWeight = 1.0f;
 
             mergedController.layers = layers.ToArray();
 
