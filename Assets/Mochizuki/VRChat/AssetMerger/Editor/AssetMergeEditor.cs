@@ -187,6 +187,8 @@ namespace Mochizuki.VRChat.AssetMerger
             var mergeTargets = new List<VRCExpressionParameters.Parameter>();
             foreach (var parameter in parameters.SelectMany(w => w.parameters))
             {
+                if (string.IsNullOrWhiteSpace(parameter.name))
+                    continue;
                 if (defaultParams.Contains(parameter.name))
                     continue;
 
