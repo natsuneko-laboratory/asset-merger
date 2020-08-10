@@ -65,3 +65,6 @@ crashlytics-build.properties
 [Aa]ssets/Udon/
 [Aa]ssets/VRChat Examples/
 [Aa]ssets/VRCSDK/
+
+# Generated Assets
+[Aa]ssets/Mochizuki/Packages/
