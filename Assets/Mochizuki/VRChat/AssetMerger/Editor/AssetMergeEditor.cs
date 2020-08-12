@@ -148,7 +148,7 @@ namespace Mochizuki.VRChat.AssetMerger
         {
             var dest = EditorUtilityExtensions.GetSaveFilePath("Save merged animator controller to...", "MergedAnimatorController", "controller");
             var mergedController = new AnimatorController();
-            var layers = new List<AnimatorControllerLayer>();
+            var mergedLayers = new List<AnimatorControllerLayer>();
 
             foreach (var controller in controllers)
             {
@@ -156,23 +156,28 @@ namespace Mochizuki.VRChat.AssetMerger
                     if (!mergedController.HasParameter(parameter.name))
                         mergedController.AddParameter(parameter);
 
+                if (controller.layers.Length == 0)
+                    continue;
+
+                // this returns a copy of layers. see https://docs.unity3d.com/ScriptReference/Animations.AnimatorController-layers.html
+                var layers = controller.layers;
                 layers.First().defaultWeight = 1.0f;
-                layers.AddRange(controller.layers);
+                mergedLayers.AddRange(layers);
             }
 
-            if (layers.Select(w => w.name).Distinct().Count() != layers.Count)
-                foreach (var dup in layers.Duplicate(w => w.name))
+            if (mergedLayers.Select(w => w.name).Distinct().Count() != mergedLayers.Count)
+                foreach (var dup in mergedLayers.Duplicate(w => w.name))
                 {
                     var count = 1;
-                    var indexes = layers.Select((w, i) => (Value: w, Index: i)).Where(w => w.Value.name == dup).ToList();
+                    var indexes = mergedLayers.Select((w, i) => (Value: w, Index: i)).Where(w => w.Value.name == dup).ToList();
                     foreach (var (layer, index) in indexes)
                     {
                         layer.name = $"{layer.name} - {count++}";
-                        layers[index] = layer;
+                        mergedLayers[index] = layer;
                     }
                 }
 
-            mergedController.layers = layers.ToArray();
+            mergedController.layers = mergedLayers.ToArray();
 
             AssetDatabase.CreateAsset(mergedController, dest);
         }
