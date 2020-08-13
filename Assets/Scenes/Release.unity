@@ -211,7 +211,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _name: VRChat-AssetMerger
-  _version: 0.1.1
+  _version: 0.1.2
   _describe:
     _output: Mochizuki/Packages
     _variations:
