@@ -27,7 +27,7 @@ namespace Mochizuki.VRChat.AssetMerger
     public class AssetMergeEditor : EditorWindow
     {
         private const string Product = "VRChat Asset Merger";
-        private const string Version = "0.2.1";
+        private const string Version = "0.3.0";
         private static readonly VersionManager Manager;
         private readonly GUIContent[] _tabItems;
 
