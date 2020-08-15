@@ -105,7 +105,7 @@ namespace Mochizuki.VRChat.AssetMerger
             if (Manager.HasNewVersion)
                 using (new EditorGUILayout.VerticalScope(GUI.skin.box))
                 {
-                    EditorGUILayout.LabelField($"{Product}の新しいバージョンがリリースされています。");
+                    EditorGUILayout.LabelField($"{Product} の新しいバージョンがリリースされています。");
                     if (GUILayout.Button("BOOTH からダウンロード"))
                         Process.Start("https://natsuneko.booth.pm/items/2281798");
                 }
