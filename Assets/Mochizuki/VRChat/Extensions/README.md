@@ -1,12 +1,13 @@
-# .NET Extension Classes for VRChat
+# .NET Extension Library for VRChat
 
 This directory (namespace: `Mochizuki.VRChat.Extensions`) includes extension classes for VRChat SDK classes.  
-These classes are used by Mochizuki (ねこのや) products and others.
+These classes are used by Mochizuki (ねこのや) products and others.  
+Some non-extension classes are now included for convenience (namespace: `Mochizuki.VRChat.Extensions.Convenience`).
 
 ## Why create/use this library?
 
-The VRCSDK is not intended for code-based development, like most SDKs, but rather is based on Unity's GUI.
-As a result, some operations are inconvenient to perform from the codebase.
+The VRCSDK is not intended for code-based development, like most SDKs, but rather is based on Unity's GUI.  
+As a result, some operations are inconvenient to perform from the codebase.  
 To alleviate those problems, this library of extended classes exists.
 
 ## Requirements

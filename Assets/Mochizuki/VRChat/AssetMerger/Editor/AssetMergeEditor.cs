@@ -4,15 +4,17 @@
  *------------------------------------------------------------------------------------------*/
 
 using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 
+using Mochizuki.VRChat.Extensions.Convenience;
 using Mochizuki.VRChat.Extensions.Unity;
 using Mochizuki.VRChat.Extensions.VRC;
 
 using UnityEditor;
 using UnityEditor.Animations;
+using UnityEditor.Callbacks;
 
 using UnityEngine;
 
@@ -25,7 +27,8 @@ namespace Mochizuki.VRChat.AssetMerger
     public class AssetMergeEditor : EditorWindow
     {
         private const string Product = "VRChat Asset Merger";
-        private const string Version = "0.1.0";
+        private const string Version = "0.3.0";
+        private static readonly VersionManager Manager;
         private readonly GUIContent[] _tabItems;
 
         private AssetType _asset;
@@ -39,12 +42,23 @@ namespace Mochizuki.VRChat.AssetMerger
         [SerializeField]
         private VRCExpressionParameters[] _sourceParameters;
 
+        static AssetMergeEditor()
+        {
+            Manager = new VersionManager("mika-f/VRChat-AssetMerger", Version, new Regex("v(?<version>.*)"));
+        }
+
         public AssetMergeEditor()
         {
             _tabItems = Enum.GetNames(typeof(AssetType))
                             .Select(w => Regex.Replace(w, "(\\B[A-Z])", " $1"))
                             .Select(w => new GUIContent(w))
                             .ToArray();
+        }
+
+        [DidReloadScripts(0)]
+        public static void DidReloadScripts()
+        {
+            Manager.CheckNewVersion();
         }
 
         [MenuItem("Mochizuki/VRChat/Asset Merge Editor")]
@@ -87,6 +101,14 @@ namespace Mochizuki.VRChat.AssetMerger
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+            if (Manager.HasNewVersion)
+                using (new EditorGUILayout.VerticalScope(GUI.skin.box))
+                {
+                    EditorGUILayout.LabelField($"{Product} の新しいバージョンがリリースされています。");
+                    if (GUILayout.Button("BOOTH からダウンロード"))
+                        Process.Start("https://natsuneko.booth.pm/items/2281798");
+                }
         }
 
         private void OnGUIForAnimatorController()
@@ -147,98 +169,30 @@ namespace Mochizuki.VRChat.AssetMerger
         private static void MergeAnimatorControllers(AnimatorController[] controllers)
         {
             var dest = EditorUtilityExtensions.GetSaveFilePath("Save merged animator controller to...", "MergedAnimatorController", "controller");
-            var mergedController = new AnimatorController();
-            var mergedLayers = new List<AnimatorControllerLayer>();
+            var controller = new AnimatorController();
+            AssetDatabase.CreateAsset(controller, dest);
 
-            foreach (var controller in controllers)
-            {
-                foreach (var parameter in controller.parameters)
-                    if (!mergedController.HasParameter(parameter.name))
-                        mergedController.AddParameter(parameter);
+            controller.MergeControllers(controllers);
 
-                if (controller.layers.Length == 0)
-                    continue;
-
-                // this returns a copy of layers. see https://docs.unity3d.com/ScriptReference/Animations.AnimatorController-layers.html
-                var layers = controller.layers;
-                layers.First().defaultWeight = 1.0f;
-                mergedLayers.AddRange(layers);
-            }
-
-            if (mergedLayers.Select(w => w.name).Distinct().Count() != mergedLayers.Count)
-                foreach (var dup in mergedLayers.Duplicate(w => w.name))
-                {
-                    var count = 1;
-                    var indexes = mergedLayers.Select((w, i) => (Value: w, Index: i)).Where(w => w.Value.name == dup).ToList();
-                    foreach (var (layer, index) in indexes)
-                    {
-                        layer.name = $"{layer.name} - {count++}";
-                        mergedLayers[index] = layer;
-                    }
-                }
-
-            mergedController.layers = mergedLayers.ToArray();
-
-            AssetDatabase.CreateAsset(mergedController, dest);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
         }
 
         private static void MergeExpressionParameters(VRCExpressionParameters[] parameters)
         {
             var dest = EditorUtilityExtensions.GetSaveFilePath("Save merged expression parameters to...", "MergedVRCExpressionParameters", "asset");
-            var mergedParameters = CreateInstance<VRCExpressionParameters>();
-            mergedParameters.InitExpressionParameters();
+            var parameter = CreateInstance<VRCExpressionParameters>();
+            parameter.InitExpressionParameters();
+            parameter.MergeParameters(parameters);
 
-            var defaultParams = mergedParameters.parameters.Where(w => !string.IsNullOrWhiteSpace(w.name)).Select(w => w.name).ToList();
-            var mergeTargets = new List<VRCExpressionParameters.Parameter>();
-            foreach (var parameter in parameters.SelectMany(w => w.parameters))
-            {
-                if (string.IsNullOrWhiteSpace(parameter.name))
-                    continue;
-                if (defaultParams.Contains(parameter.name))
-                    continue;
-
-                if (mergeTargets.Any(w => w.name == parameter.name))
-                {
-                    Debug.LogWarning("同じ名前のパラメータがすでに登録されています。");
-                    continue;
-                }
-
-                mergeTargets.Add(parameter);
-            }
-
-            if (mergeTargets.Count > VRCExpressionParameters.MAX_PARAMETERS)
-            {
-                Debug.LogError($"パラメータの総数が最大数である{VRCExpressionParameters.MAX_PARAMETERS}個を越えています。");
-                return;
-            }
-
-            foreach (var (value, index) in mergeTargets.Select((w, i) => (Value: w, Index: i)))
-                mergedParameters.parameters[index + 3] = value;
-
-            AssetDatabase.CreateAsset(mergedParameters, dest);
+            AssetDatabase.CreateAsset(parameter, dest);
         }
 
         private static void MergeExpressionsMenus(VRCExpressionsMenu[] expressions)
         {
             var dest = EditorUtilityExtensions.GetSaveFilePath("Save merged expressions menu to...", "MergedVRCExpressionsMenu", "asset");
             var expr = CreateInstance<VRCExpressionsMenu>();
-
-            foreach (var control in expressions.SelectMany(w => w.controls))
-            {
-                if (expr.controls.Any(w => w.name == control.name))
-                {
-                    Debug.LogWarning("同じ名前のメニューがすでに登録されています。");
-                    continue;
-                }
-
-                expr.controls.Add(control);
-            }
-
-            if (expr.controls.Count > VRCExpressionsMenu.MAX_CONTROLS)
-            {
-                Debug.LogError($"メニューの総数が最大数である{VRCExpressionsMenu.MAX_CONTROLS}個を越えています。");
-                return;
-            }
+            expr.MergeExpressions(expressions);
 
             AssetDatabase.CreateAsset(expr, dest);
         }
@@ -250,14 +204,6 @@ namespace Mochizuki.VRChat.AssetMerger
             ExpressionParameters,
 
             ExpressionsMenu
-        }
-    }
-
-    internal static class EnumerableExtensions
-    {
-        public static IEnumerable<string> Duplicate<T>(this IEnumerable<T> obj, Func<T, string> groupByFunc)
-        {
-            return obj.GroupBy(groupByFunc).Where(w => w.Count() > 1).Select(w => w.Key).ToList();
         }
     }
 }
