@@ -35,6 +35,12 @@ namespace Mochizuki.VRChat.Extensions.Convenience
                 if (!string.IsNullOrWhiteSpace(_latestVersion))
                     return _latestVersion;
 
+                if (_www.isNetworkError || _www.isHttpError)
+                {
+                    _latestVersion = "0.0.0";
+                    return _latestVersion;
+                }
+
                 var json = JsonUtility.FromJson<GitHubApiResponse>(_www.downloadHandler.text);
                 _latestVersion = json.tag_name;
 

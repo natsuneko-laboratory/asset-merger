@@ -4,6 +4,7 @@
  *------------------------------------------------------------------------------------------*/
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -14,7 +15,6 @@ using Mochizuki.VRChat.Extensions.VRC;
 
 using UnityEditor;
 using UnityEditor.Animations;
-using UnityEditor.Callbacks;
 
 using UnityEngine;
 
@@ -27,7 +27,7 @@ namespace Mochizuki.VRChat.AssetMerger
     public class AssetMergeEditor : EditorWindow
     {
         private const string Product = "VRChat Asset Merger";
-        private const string Version = "0.3.0";
+        private const string Version = "0.3.1";
         private static readonly VersionManager Manager;
         private readonly GUIContent[] _tabItems;
 
@@ -55,8 +55,8 @@ namespace Mochizuki.VRChat.AssetMerger
                             .ToArray();
         }
 
-        [DidReloadScripts(0)]
-        public static void DidReloadScripts()
+        [InitializeOnLoadMethod]
+        public static void InitializeOnLoad()
         {
             Manager.CheckNewVersion();
         }
@@ -118,7 +118,7 @@ namespace Mochizuki.VRChat.AssetMerger
 
             EditorGUILayoutExtensions.PropertyField(this, nameof(_sourceControllers));
 
-            using (new DisabledGroup(_sourceControllers.All(w => w == null)))
+            using (new DisabledGroup(_sourceControllers?.All(w => w == null) == true))
             {
                 if (GUILayout.Button("マージする"))
                     MergeAnimatorControllers(_sourceControllers);
@@ -139,7 +139,7 @@ namespace Mochizuki.VRChat.AssetMerger
 
             EditorGUILayoutExtensions.PropertyField(this, nameof(_sourceParameters));
 
-            using (new DisabledGroup(_sourceParameters.All(w => w == null)))
+            using (new DisabledGroup(_sourceParameters?.All(w => w == null) == true))
             {
                 if (GUILayout.Button("マージする"))
                     MergeExpressionParameters(_sourceParameters);
@@ -159,7 +159,7 @@ namespace Mochizuki.VRChat.AssetMerger
 
             EditorGUILayoutExtensions.PropertyField(this, nameof(_sourceExpressions));
 
-            using (new DisabledGroup(_sourceExpressions.All(w => w == null)))
+            using (new DisabledGroup(_sourceExpressions?.All(w => w == null) == true))
             {
                 if (GUILayout.Button("マージする"))
                     MergeExpressionsMenus(_sourceExpressions);
