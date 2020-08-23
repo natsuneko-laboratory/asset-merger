@@ -1,4 +1,11 @@
 {
+  "scopedRegistries": [
+    {
+      "name": "Mochizuki",
+      "url": "https://registry.npmjs.com",
+      "scopes": ["moe.mochizuki"]
+    }
+  ],
   "dependencies": {
     "com.unity.ads": "2.0.8",
     "com.unity.analytics": "3.2.3",
@@ -37,6 +44,7 @@
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
-    "com.unity.modules.xr": "1.0.0"
+    "com.unity.modules.xr": "1.0.0",
+    "moe.mochizuki.variation-packager": "0.2.0"
   }
 }
