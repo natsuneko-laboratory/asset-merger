@@ -45,6 +45,7 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0",
-    "moe.mochizuki.variation-packager": "0.2.0"
+    "moe.mochizuki.variation-packager": "0.2.0",
+    "moe.mochizuki.vrchat.extensions-library": "0.3.3"
   }
 }
