@@ -4,7 +4,6 @@
  *------------------------------------------------------------------------------------------*/
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -61,7 +60,13 @@ namespace Mochizuki.VRChat.AssetMerger
             Manager.CheckNewVersion();
         }
 
-        [MenuItem("Mochizuki/VRChat/Asset Merge Editor")]
+        [MenuItem("Mochizuki/VRChat/Asset Merger/Documents")]
+        public static void ShowDocuments()
+        {
+            Process.Start("https://docs.mochizuki.moe/VRChat/AssetMerger/");
+        }
+
+        [MenuItem("Mochizuki/VRChat/Asset Merger/Editor")]
         public static void ShowWindow()
         {
             var window = GetWindow<AssetMergeEditor>();
