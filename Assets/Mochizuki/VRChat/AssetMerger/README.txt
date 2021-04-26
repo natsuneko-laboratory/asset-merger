@@ -32,12 +32,11 @@ GitHub 版でもほぼ同様のものは作成可能ですが、サポートな�
 
 以下のページにて解説しています。
 
-https://docs.mochizuki.moe/VRChat/AssetMerger
+https://docs.mochizuki.moe/vrchat/asset-merger/
 
 
 ## 利用規約
 
-本配布物については、ねこのや利用規約 (UnityEditor_Rev20200630) が適用されます。
-詳しくは下記ページをご確認ください。
+本配布物については、下記の利用規約が適用されます。
 
-https://docs.mochizuki.moe/Terms/UnityEditor_R20200630
+https://docs.mochizuki.moe/vrchat/asset-merger/terms/

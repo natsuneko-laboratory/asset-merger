@@ -1,0 +1,16 @@
+{
+    "name": "Mochizuki.VRChat.AssetMerger",
+    "references": [
+        "Mochizuki.VRChat.Extensions"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": []
+}
