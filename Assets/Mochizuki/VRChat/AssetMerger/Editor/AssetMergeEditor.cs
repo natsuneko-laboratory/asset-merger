@@ -1,5 +1,5 @@
 ﻿/*-------------------------------------------------------------------------------------------
- * Copyright (c) Fuyuno Mikazuki / Natsuneko. All rights reserved.
+ * Copyright (c) Natsuneko. All rights reserved.
  * Licensed under the MIT License. See LICENSE in the project root for license information.
  *------------------------------------------------------------------------------------------*/
 
@@ -8,9 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-using Mochizuki.VRChat.Extensions.Convenience;
-using Mochizuki.VRChat.Extensions.Unity;
-using Mochizuki.VRChat.Extensions.VRC;
+using Mochizuki.VRChat.AssetMerger.Internal;
 
 using UnityEditor;
 using UnityEditor.Animations;
@@ -26,7 +24,7 @@ namespace Mochizuki.VRChat.AssetMerger
     public class AssetMergeEditor : EditorWindow
     {
         private const string Product = "VRChat Asset Merger";
-        private const string Version = "0.3.1";
+        private const string Version = "0.4.0";
         private static readonly VersionManager Manager;
         private readonly GUIContent[] _tabItems;
 
@@ -63,7 +61,7 @@ namespace Mochizuki.VRChat.AssetMerger
         [MenuItem("Mochizuki/VRChat/Asset Merger/Documents")]
         public static void ShowDocuments()
         {
-            Process.Start("https://docs.mochizuki.moe/VRChat/AssetMerger/");
+            Process.Start("https://docs.mochizuki.moe/vrchat/asset-merger/");
         }
 
         [MenuItem("Mochizuki/VRChat/Asset Merger/Editor")]
@@ -121,9 +119,9 @@ namespace Mochizuki.VRChat.AssetMerger
             using (new EditorGUILayout.HorizontalScope(GUI.skin.box))
                 EditorGUILayout.LabelField("複数の Animator Controller をまとめます。");
 
-            EditorGUILayoutExtensions.PropertyField(this, nameof(_sourceControllers));
+            PropertyField(this, nameof(_sourceControllers));
 
-            using (new DisabledGroup(_sourceControllers?.All(w => w == null) == true))
+            using (new EditorGUI.DisabledGroupScope(_sourceControllers?.All(w => w == null) == true))
             {
                 if (GUILayout.Button("マージする"))
                     MergeAnimatorControllers(_sourceControllers);
@@ -136,15 +134,15 @@ namespace Mochizuki.VRChat.AssetMerger
             {
                 EditorGUILayout.LabelField(@"
 複数の Expression Parameters をまとめます。
-なお、パラメータの数が合計16個を越えた場合は処理を中断します。
+なお、パラメータの数が総コスト数を越えた場合は処理を中断します。
 ※VRChat のデフォルトパラメータは統合後も初期のもの3つのみ保持します。
 ※処理を中断した場合、エラー内容は Console に出力されます。
 ".Trim());
             }
 
-            EditorGUILayoutExtensions.PropertyField(this, nameof(_sourceParameters));
+            PropertyField(this, nameof(_sourceParameters));
 
-            using (new DisabledGroup(_sourceParameters?.All(w => w == null) == true))
+            using (new EditorGUI.DisabledGroupScope(_sourceParameters?.All(w => w == null) == true))
             {
                 if (GUILayout.Button("マージする"))
                     MergeExpressionParameters(_sourceParameters);
@@ -162,9 +160,9 @@ namespace Mochizuki.VRChat.AssetMerger
 ".Trim());
             }
 
-            EditorGUILayoutExtensions.PropertyField(this, nameof(_sourceExpressions));
+            PropertyField(this, nameof(_sourceExpressions));
 
-            using (new DisabledGroup(_sourceExpressions?.All(w => w == null) == true))
+            using (new EditorGUI.DisabledGroupScope(_sourceExpressions?.All(w => w == null) == true))
             {
                 if (GUILayout.Button("マージする"))
                     MergeExpressionsMenus(_sourceExpressions);
@@ -173,7 +171,7 @@ namespace Mochizuki.VRChat.AssetMerger
 
         private static void MergeAnimatorControllers(AnimatorController[] controllers)
         {
-            var dest = EditorUtilityExtensions.GetSaveFilePath("Save merged animator controller to...", "MergedAnimatorController", "controller");
+            var dest = EditorUtility.SaveFilePanelInProject("Save merged animator controller to...", "MergedAnimatorController", "controller", "");
             var controller = new AnimatorController();
             AssetDatabase.CreateAsset(controller, dest);
 
@@ -185,9 +183,9 @@ namespace Mochizuki.VRChat.AssetMerger
 
         private static void MergeExpressionParameters(VRCExpressionParameters[] parameters)
         {
-            var dest = EditorUtilityExtensions.GetSaveFilePath("Save merged expression parameters to...", "MergedVRCExpressionParameters", "asset");
+            var dest = EditorUtility.SaveFilePanelInProject("Save merged expression parameters to...", "MergedVRCExpressionParameters", "asset", "");
             var parameter = CreateInstance<VRCExpressionParameters>();
-            parameter.InitExpressionParameters();
+            parameter.InitExpressionParameters(true);
             parameter.MergeParameters(parameters);
 
             AssetDatabase.CreateAsset(parameter, dest);
@@ -195,11 +193,21 @@ namespace Mochizuki.VRChat.AssetMerger
 
         private static void MergeExpressionsMenus(VRCExpressionsMenu[] expressions)
         {
-            var dest = EditorUtilityExtensions.GetSaveFilePath("Save merged expressions menu to...", "MergedVRCExpressionsMenu", "asset");
+            var dest = EditorUtility.SaveFilePanelInProject("Save merged expressions menu to...", "MergedVRCExpressionsMenu", "asset", "");
             var expr = CreateInstance<VRCExpressionsMenu>();
             expr.MergeExpressions(expressions);
 
             AssetDatabase.CreateAsset(expr, dest);
+        }
+
+        private static void PropertyField(EditorWindow editor, string property)
+        {
+            var so = new SerializedObject(editor);
+            so.Update();
+
+            EditorGUILayout.PropertyField(so.FindProperty(property), true);
+
+            so.ApplyModifiedProperties();
         }
 
         private enum AssetType
