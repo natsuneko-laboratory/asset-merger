@@ -11,8 +11,8 @@ A Unity editor extension for merging multiple assets of VRChat Avatars 3.0.
 
 ## How to use
 
-https://docs.mochizuki.moe/VRChat/AssetMerger
+https://docs.mochizuki.moe/vrchat/asset-merger/
 
 ## License
 
-MIT by [@MikazukiFuyuno](https://twitter.com/MikazukiFuyuno) and [@6jz](https://twitter.com/6jz)
+MIT by [@6jz](https://twitter.com/6jz)
